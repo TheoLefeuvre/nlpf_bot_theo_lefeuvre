@@ -73,9 +73,13 @@ async def ban(ctx, member: discord.Member = None):
 async def count(ctx):
     class Stats:
         online = 0
+        online_members = []
         offline = 0
+        offline_members = []
         idle = 0
+        idle_members = []
         DND = 0
+        dnd_members = []
 
     status = Stats()
     for guild in bot.guilds:
@@ -85,18 +89,35 @@ async def count(ctx):
             print("Count, member.status: " + member.status.name)
             if member.status.name == "online":
                 status.online += 1
+                status.online_members.append(member.name)
             elif member.status.name == "offline":
                 status.offline += 1
+                status.offline_members.append(member.name)
             elif member.status.name == "idle":
                 status.idle += 1
+                status.idle_members.append(member.name)
             else:
                 status.DND += 1
+                status.dnd_members.append(member.name)
     message = "Active members: " + str(status.online) + "\n"
+    for person in status.online_members:
+        message += person + "\n"
     message += "Offline members: " + str(status.offline) + "\n"
+    for person in status.offline_members:
+        message += person + "\n"
     message += "Idle members: " + str(status.idle) + "\n"
+    for person in status.idle_members:
+        message += person + "\n"
     message += "DND members: " + str(status.DND) + "\n"
+    for person in status.dnd_members:
+        message += person + "\n"
     print("Count: " + message)
     await ctx.send(message)
+
+
+@bot.command()
+async def xkcd(ctx):
+    print("J'ai pas reussi a get l'image depuis xkcd")
 
 
 # React to a message sent in a channel
