@@ -2,7 +2,8 @@ from discord.ext import commands
 from discord.utils import get
 import discord
 import json
-
+import asyncio
+from datetime import datetime
 import random
 
 intents = discord.Intents.default()
@@ -118,9 +119,9 @@ async def count(ctx):
 @bot.command()
 async def xkcd(ctx):
     print("J'ai pas reussi a get l'image depuis xkcd")
+    await ctx.send("Je sais pas faire désolé ;-;")
 
 
-# React to a message sent in a channel
 @bot.event
 async def on_message(message):
     # Avoid answering to self-sent messages
@@ -130,6 +131,44 @@ async def on_message(message):
     # Respond to "Salut tout le monde " and ping the sender
     if message.content.startswith('Salut tout le monde'):
         await message.channel.send("Salut tout seul " + '{}'.format(message.author.mention))
+
+    # Respond to "Bot"
+    if message.content.startswith('Bot'):
+        # infos[0] = !remind | infos[1] = date | infos[2] = time | infos[3, 4, 5...] = event
+        infos = message.content.split(' ')
+
+        date_obj = datetime.strptime(
+            infos[1] + ' ' + infos[2], "%d/%m/%Y %H:%M:%S")
+        now = datetime.now()
+
+        event = ''
+        # Concatenate the description of the event (c pas bo mais a 5h j'avais pas mieux)
+        for i in range(3, len(infos)):
+            event += infos[i] + ' '
+
+        # Warns if the date is in the past
+        if date_obj < now:
+            await message.channel.send('Given date is past !')
+            await message.channel.send('Now, it is: ' + now.strftime("%d/%m/%Y %H:%M:%S"))
+            return
+
+        response = 'Event registered for ' + \
+            date_obj.strftime("%d/%m/%Y %H:%M:%S") + ' with event ' + event
+
+        await message.channel.send(response)
+
+        delta = date_obj - now
+
+        total_seconds = delta.total_seconds()
+
+        # Sleep for the duration
+        await asyncio.sleep(total_seconds)
+
+        # Ping the sender
+        await message.channel.send('Dont forget your event !')
+        await message.channel.send(event)
+        await message.channel.send('{}'.format(message.author.mention))
+
     await bot.process_commands(message)
 
 # Secret token handling
